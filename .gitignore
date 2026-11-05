@@ -1,0 +1,8 @@
+# Secretos y datos que viven solo en el servidor
+servidor/config.php
+servidor/feed.xml
+servidor/episodios.json
+servidor/ep_*.mp3
+.ftp-deploy-sync-state.json
+__pycache__/
+.DS_Store

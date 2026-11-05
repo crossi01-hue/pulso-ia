@@ -1,0 +1,7 @@
+# Radar IA — proteger archivos internos (la llave y la lista de episodios)
+<Files "config.php">
+  Require all denied
+</Files>
+<Files "episodios.json">
+  Require all denied
+</Files>

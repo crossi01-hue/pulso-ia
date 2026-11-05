@@ -1,0 +1,40 @@
+name: Desplegar a podcast.isaligner.com
+
+# Cada push a main sube los archivos de servidor/ a la carpeta del podcast por FTP.
+# NO toca config.php, feed.xml, episodios.json ni los MP3 (están excluidos): esos
+# viven solo en el servidor y los maneja subir.php.
+#
+# Requiere 3 secretos en el repo (Settings -> Secrets and variables -> Actions):
+#   FTP_SERVER    -> host FTP de HostGator (ej. ftp.isaligner.com o el que indique cPanel)
+#   FTP_USERNAME  -> cuenta FTP del podcast (ej. podcast@isaligner.com)
+#   FTP_PASSWORD  -> su contraseña
+# La cuenta FTP debe estar enraizada en /home2/isalign1/podcast.isaligner.com
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Subir por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./servidor/
+          server-dir: ./
+          # NO subir ni borrar lo que vive solo en el servidor:
+          exclude: |
+            **/config.php
+            **/config.sample.php
+            **/feed.xml
+            **/episodios.json
+            **/ep_*.mp3
+            **/.ftp-deploy-sync-state.json
+            **/.DS_Store
