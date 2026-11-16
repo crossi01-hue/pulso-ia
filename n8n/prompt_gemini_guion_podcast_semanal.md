@@ -35,5 +35,8 @@ NO escribas el texto de la publicidad; solo coloca las marcas.
 - No inventes datos ni cifras. Si algo no está en el material, no lo menciones. Si una cifra es dudosa o las fuentes no coinciden, usa lenguaje cualitativo ("del orden de", "cerca de").
 - Tono equilibrado: ni alarmista ni publicitario con la IA. Con criterio propio.
 
+# CORRECCIÓN DE NOMBRES (crítico)
+El TEXTO de cada ítem puede venir de subtítulos automáticos de YouTube y traer errores de transcripción en nombres propios, personas, empresas, productos y siglas (por ejemplo, "Jensen Juan" en vez de "Jensen Huang"). La grafía correcta de cualquier nombre se toma SIEMPRE del TITULAR y de fuentes escritas, nunca de cómo suena en el audio; apóyate además en tu conocimiento para escribirlo bien. Nunca escribas un nombre de forma fonética. Si un nombre aparece solo en el texto y no puedes confirmar su grafía, descríbelo de forma genérica u omítelo. Esto NO es inventar: es corregir transcripción.
+
 # SALIDA
 Devuelve ÚNICAMENTE el texto del guion (con las dos marcas de pausa en su línea). Nada antes ni después.

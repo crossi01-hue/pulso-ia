@@ -1,0 +1,146 @@
+{
+  "name": "Pulso IA · Correo (v3)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pulso-correo",
+        "options": {}
+      },
+      "id": "af9ed331-cfaa-43a7-ad51-99c6ee24c882",
+      "name": "Entrada correo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "3115a8b3-5d46-4b10-852b-3cb93629f995"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body || $json;\nconst items = b.items || [];\nconst email_at = b.email_at || null;\nreturn items.map(v => ({ json: Object.assign({}, v, { _email_at: email_at }) }));"
+      },
+      "id": "ea4889a8-4092-45ef-9633-bbd3e4e5b0de",
+      "name": "Desempaquetar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst fecha = new Date().toLocaleDateString('es-CL', { day:'2-digit', month:'long', year:'numeric' });\nconst nFuentes = new Set(items.map(v => v.origen)).size;\nconst nNoticias = items.length;\n\nfunction esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\n\nfunction card(v){\n  const esVideo = !!v.videoId;\n  const thumb = esVideo\n    ? `<td class=\"thumb-cell\" width=\"150\" valign=\"top\" style=\"padding-right:14px;\">`\n      + `<img class=\"thumb-img\" src=\"https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg\" width=\"150\" style=\"width:150px;max-width:150px;border-radius:8px;display:block;\" alt=\"\"></td>`\n    : '';\n  const puntos = (v.puntos||[]).map(p => `<li style=\"margin:4px 0;\">${esc(p)}</li>`).join('');\n  const puntosHtml = puntos ? `<ul style=\"margin:8px 0 10px;padding-left:18px;color:#39485a;font-size:14px;line-height:1.55;text-align:justify;\">${puntos}</ul>` : '';\n  const enlace = esVideo\n    ? `<a href=\"${v.link}\" style=\"color:#0E9A8D;text-decoration:none;font-size:13px;font-weight:700;\">Ver el video original &rarr;</a>`\n    : `<a href=\"${v.link}\" style=\"color:#0E9A8D;text-decoration:none;font-size:13px;font-weight:700;\">Leer la fuente &rarr;</a>`;\n  return `<tr><td style=\"padding:18px 0;border-bottom:1px solid #E3E8EF;\">`\n    + `<table class=\"card-row\" role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>`\n    + thumb\n    + `<td class=\"text-cell\" valign=\"top\">`\n    + `<div style=\"font-size:11px;font-weight:700;color:#0E9A8D;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;\">${esc(v.origen)}</div>`\n    + `<div style=\"font-size:17px;font-weight:800;color:#0B2545;line-height:1.3;margin-bottom:7px;\">${esc(v.titular)}</div>`\n    + `<div style=\"font-size:14px;color:#4C5A6B;line-height:1.6;text-align:justify;\">${esc(v.resumen)}</div>`\n    + puntosHtml + enlace\n    + `</td></tr></table></td></tr>`;\n}\n\nconst banner = `<tr><td style=\"padding:18px 0;\">`\n  + `<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#0E9A8D;border-radius:12px;\"><tr><td style=\"padding:20px 22px;\">`\n  + `<div style=\"font-size:11px;font-weight:800;letter-spacing:.12em;color:#CFF6EF;text-transform:uppercase;\">Isaligner &middot; Alineadores invisibles</div>`\n  + `<div style=\"font-size:18px;font-weight:800;color:#ffffff;margin:5px 0 4px;\">Transforma tu sonrisa sin brackets</div>`\n  + `<div style=\"font-size:13px;color:#E4FBF7;margin-bottom:12px;\">Tratamiento discreto y guiado por especialistas. Primera evaluacion sin costo.</div>`\n  + `<a href=\"https://www.isaligner.com\" style=\"background:#ffffff;color:#0E9A8D;font-weight:800;font-size:13px;text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block;\">Agendar evaluacion &rarr;</a>`\n  + `</td></tr></table></td></tr>`;\n\nlet filas = '';\nitems.forEach((v,i) => { filas += card(v); if (i === 1) filas += banner; });\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\"><head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n  body{ margin:0; padding:0; }\n  img{ border:0; }\n  @media only screen and (max-width:600px){\n    .container{ width:100% !important; border-radius:0 !important; }\n    .card-row .thumb-cell{ display:block !important; width:100% !important; padding:0 0 12px 0 !important; }\n    .card-row .text-cell{ display:block !important; width:100% !important; }\n    .thumb-img{ width:100% !important; max-width:100% !important; height:auto !important; }\n    .px{ padding-left:18px !important; padding-right:18px !important; }\n  }\n</style></head>\n<body style=\"margin:0;padding:0;background:#F3F6FA;\">\n<div style=\"background:#F3F6FA;padding:16px 0;font-family:'Helvetica Neue',Arial,sans-serif;\">\n<table class=\"container\" role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"max-width:600px;background:#ffffff;margin:0 auto;border-radius:12px;overflow:hidden;\">\n  <tr><td style=\"background:#0B2545;padding:16px 24px;\">\n    <table role=\"presentation\" width=\"100%\"><tr>\n      <td style=\"color:#ffffff;font-weight:800;font-size:16px;letter-spacing:.3px;\">isaligner<span style=\"color:#8FE7DC;\">.</span></td>\n      <td align=\"right\" style=\"color:#ffffff;font-size:12px;font-weight:700;letter-spacing:.12em;\">PULSO IA &middot; ${fecha}</td>\n    </tr></table>\n  </td></tr>\n  <tr><td class=\"px\" style=\"padding:24px 24px 6px;\">\n    <div style=\"font-size:22px;font-weight:800;color:#0B2545;line-height:1.2;\">Lo de la semana en IA</div>\n    <div style=\"font-size:14px;color:#6B7685;margin-top:4px;\">${nNoticias} noticias de ${nFuentes} fuentes &middot; resumen de la semana</div>\n  </td></tr>\n  <tr><td class=\"px\" style=\"padding:12px 24px 2px;\">\n    <a href=\"https://podcast.isaligner.com/\" style=\"display:inline-block;background:#0E9A8D;color:#ffffff;font-weight:800;font-size:14px;text-decoration:none;padding:12px 20px;border-radius:10px;\">🎧 Escuchar el podcast de la semana &rarr;</a>\n  </td></tr>\n  <tr><td class=\"px\" style=\"padding:6px 24px 0;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${filas}</table>\n  </td></tr>\n  <tr><td style=\"padding:22px 24px;background:#F3F6FA;text-align:center;\">\n    <div style=\"font-weight:800;color:#0B2545;font-size:13px;\">isaligner &middot; Pulso IA</div>\n    <div style=\"font-size:11.5px;color:#8695A6;margin-top:4px;\">Resumen automatico de noticias de IA &middot; cada martes</div>\n  </td></tr>\n</table></div></body></html>`;\n\nreturn [{ json: { html: html } }];"
+      },
+      "id": "cff8d11d-f53a-4eb5-8b3a-2b6468eb9a5f",
+      "name": "Armar Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Desempaquetar').first().json._email_at }}"
+      },
+      "id": "b81d45b8-f61f-4858-b7c5-6984bb922e50",
+      "name": "Esperar martes 08:00",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "webhookId": "41c1c75e-77ec-4137-ae00-877d3b046255"
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@isaligner.com",
+        "toEmail": "crossi01@gmail.com",
+        "subject": "=Pulso IA - {{ $now.toFormat('dd-MM-yyyy') }}",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "660fd71d-365a-4b0b-963a-92572b223668",
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        0
+      ],
+      "webhookId": "aba49ea9-ad99-46c1-9117-37f0e8144b76",
+      "credentials": {
+        "smtp": {
+          "id": "6bArafblF9h0K7Lh",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Entrada correo": {
+      "main": [
+        [
+          {
+            "node": "Desempaquetar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desempaquetar": {
+      "main": [
+        [
+          {
+            "node": "Armar Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Email": {
+      "main": [
+        [
+          {
+            "node": "Esperar martes 08:00",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar martes 08:00": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "92c750e7-cf11-479b-b1f4-a2c0b89ba5de",
+  "meta": {
+    "instanceId": "fa7bf19cad114c765536376137015b516d410a1d05ea89b0ebadb188f4fcd50c"
+  },
+  "nodeGroups": [],
+  "id": "v5zkDLoGi8ONukAU",
+  "tags": []
+}
